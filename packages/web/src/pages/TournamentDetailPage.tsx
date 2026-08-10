@@ -32,6 +32,15 @@ export default function TournamentDetailPage() {
     reload();
   }, [reload]);
 
+  // F-41: Tabellenansicht ist für Liga und Gruppen vorgesehen. K.-o.-Turniere
+  // bekommen stattdessen den Baum (F-40) — vor dem ersten Spiel sind dort
+  // ohnehin alle Teams gleich und die Tiebreaker-Kette liefert nur Los-Fälle.
+  const hasStandings = tournament?.mode === "league";
+
+  useEffect(() => {
+    if (tab === "standings" && !hasStandings) setTab("schedule");
+  }, [tab, hasStandings]);
+
   if (!id) return null;
   if (error) return <p style={{ color: "crimson" }}>{error}</p>;
   if (!tournament) return <p>Lädt…</p>;
@@ -60,9 +69,11 @@ export default function TournamentDetailPage() {
         <button className={tab === "recapture" ? "active" : ""} onClick={() => setTab("recapture")} disabled={!hasSchedule}>
           Nacherfassung
         </button>
-        <button className={tab === "standings" ? "active" : ""} onClick={() => setTab("standings")} disabled={!hasSchedule}>
-          Tabelle
-        </button>
+        {hasStandings && (
+          <button className={tab === "standings" ? "active" : ""} onClick={() => setTab("standings")} disabled={!hasSchedule}>
+            Tabelle
+          </button>
+        )}
       </div>
 
       {tab === "teams" && (
