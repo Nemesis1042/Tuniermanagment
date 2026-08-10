@@ -68,25 +68,33 @@ export default function TeamsTab({
           </span>
         </form>
         {error && <p style={{ color: "crimson" }}>{error}</p>}
-        <table>
-          <thead>
-            <tr>
-              <th>Team</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {teams.map((t) => (
-              <tr key={t.id} style={t.withdrawn ? { color: "#999", textDecoration: "line-through" } : undefined}>
-                <td>{t.name}</td>
-                <td>
-                  {!t.withdrawn && <button onClick={() => withdraw(t.id)}>Rückzug</button>}
-                  {t.withdrawn && <span className="status-tag">zurückgezogen</span>}
-                </td>
+        {teams.length === 0 ? (
+          <p className="empty-state">Noch keine Teams erfasst.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {teams.map((t) => (
+                <tr key={t.id} style={t.withdrawn ? { color: "var(--ink-pale)", textDecoration: "line-through" } : undefined}>
+                  <td style={{ fontWeight: 600 }}>{t.name}</td>
+                  <td>
+                    {!t.withdrawn && (
+                      <button className="link" onClick={() => withdraw(t.id)}>
+                        Rückzug
+                      </button>
+                    )}
+                    {t.withdrawn && <span className="status-tag">zurückgezogen</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <div className="card">
@@ -100,14 +108,14 @@ export default function TeamsTab({
           </button>
         </div>
         {preview && (
-          <p>
-            {preview.totalGames} Spiele insgesamt, {preview.gamesPerTeamMin}
+          <p className="subtle" style={{ marginTop: 10 }}>
+            <b style={{ color: "var(--ink)" }}>{preview.totalGames} Spiele</b> insgesamt, {preview.gamesPerTeamMin}
             {preview.gamesPerTeamMax !== preview.gamesPerTeamMin ? `–${preview.gamesPerTeamMax}` : ""} je Team.
             {preview.neededMinutes != null && ` Benötigte Feldzeit: ${Math.round(preview.neededMinutes / 60)} h.`}
           </p>
         )}
         {hasSchedule && (
-          <p style={{ color: "#a60", fontSize: "0.9em" }}>
+          <p style={{ color: "var(--warn-ink)", fontSize: "0.85rem", marginTop: 10 }}>
             Neu erzeugen verwirft den bestehenden Plan und alle Ergebnisse (F-17: nur vor dem ersten Ergebnis möglich).
           </p>
         )}

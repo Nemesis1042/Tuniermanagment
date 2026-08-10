@@ -12,45 +12,49 @@ export default function TournamentListPage() {
 
   return (
     <div>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h1>Turniere</h1>
+      <div className="page-head">
+        <div>
+          <h1>Turniere</h1>
+          <p className="subtle">Bis zu 8 gleichzeitig (F-07)</p>
+        </div>
         <Link to="/turniere/neu">
           <button className="primary">+ Turnier anlegen</button>
         </Link>
       </div>
       {error && <p style={{ color: "crimson" }}>{error}</p>}
       <div className="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Disziplin</th>
-              <th>Feld</th>
-              <th>Modus</th>
-              <th>Status</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {tournaments.map((t) => (
-              <tr key={t.id}>
-                <td>{t.discipline}</td>
-                <td>{t.fieldName}</td>
-                <td>{modeLabel(t.mode)}</td>
-                <td><span className="status-tag">{t.status}</span></td>
-                <td>
-                  <Link to={`/turniere/${t.id}`}>öffnen</Link>
-                </td>
-              </tr>
-            ))}
-            {tournaments.length === 0 && (
+        {tournaments.length === 0 ? (
+          <p className="empty-state">Noch keine Turniere angelegt.</p>
+        ) : (
+          <table>
+            <thead>
               <tr>
-                <td colSpan={5} style={{ color: "#999" }}>
-                  Noch keine Turniere. Bis zu 8 gleichzeitig möglich (F-07).
-                </td>
+                <th>Disziplin</th>
+                <th>Feld</th>
+                <th>Modus</th>
+                <th>Status</th>
+                <th />
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tournaments.map((t) => (
+                <tr key={t.id}>
+                  <td style={{ fontWeight: 600 }}>{t.discipline}</td>
+                  <td>{t.fieldName}</td>
+                  <td>{modeLabel(t.mode)}</td>
+                  <td>
+                    <span className="status-tag">{t.status}</span>
+                  </td>
+                  <td>
+                    <Link to={`/turniere/${t.id}`}>
+                      <button className="link">öffnen →</button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

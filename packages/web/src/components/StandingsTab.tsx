@@ -30,20 +30,26 @@ export default function StandingsTab({ tournament, teams }: { tournament: Tourna
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
+          {rows.map((r, i) => (
             <tr key={r.teamId}>
-              <td>{r.rank}</td>
-              <td>
+              <td style={{ color: i < 2 ? "var(--ink)" : "var(--ink-pale)", fontWeight: 700 }}>{r.rank}</td>
+              <td style={{ fontWeight: 600 }}>
                 {teamName(teams, r.teamId)}
-                {r.tiedNeedsLot && <span className="status-tag" title="Los muss vom Admin bestätigt werden (3.7)"> Los?</span>}
+                {r.tiedNeedsLot && (
+                  <span className="status-tag status-spielbar" style={{ marginLeft: 6 }} title="Los muss vom Admin bestätigt werden (3.7)">
+                    Los?
+                  </span>
+                )}
               </td>
               <td>{r.played}</td>
               <td>{r.wins}</td>
               <td>{r.draws}</td>
               <td>{r.losses}</td>
-              <td>{r.goalsFor}:{r.goalsAgainst}</td>
-              <td>{r.goalsFor - r.goalsAgainst}</td>
-              <td><b>{r.points}</b></td>
+              <td style={{ fontVariantNumeric: "tabular-nums" }}>
+                {r.goalsFor}:{r.goalsAgainst}
+              </td>
+              <td>{r.goalsFor - r.goalsAgainst > 0 ? "+" : ""}{r.goalsFor - r.goalsAgainst}</td>
+              <td style={{ fontWeight: 700, fontSize: "1.05em" }}>{r.points}</td>
             </tr>
           ))}
         </tbody>

@@ -14,15 +14,14 @@ Stufe 1 (reiner Papierweg, dieses Jahr) ist im Kern fertig:
 - **Rückzug / kampflose Wertung** (F-18) — `packages/shared/src/withdrawal.ts`
 - **REST-API**: Turnier/Team-Verwaltung, Spielplan-Erzeugung, Ergebnisfluss mit
   Korrektur-Kaskade und Protokoll — `packages/server/`
-- **Web-UI (Admin/MA)**: Turnierliste/-anlage, Teams, Spielplan, Nacherfassung
-  (F-38, Tastatur-only), Tabelle — `packages/web/`
+- **Web-UI (Admin/MA)**: Turnierliste/-anlage, Teams, Spielplan (Karten-Ansicht
+  für Liga, grafischer Baum für K.-o. mit gemessenen SVG-Verbindungslinien),
+  Nacherfassung (F-38, Tastatur-only), Tabelle (F-40/F-41) — `packages/web/`
 - **Druckvorlagen A4** (F-26 bis F-29, F-39 Sammeldruck) — `packages/server/src/print/`,
   angebunden an die Entwürfe in `files/aushang-*.html`
 
 Offen aus der Umsetzungsreihenfolge (Kap. 11):
 
-- Grafische Baumansicht *am Bildschirm* (aktuell nur als Ausdruck; Web-UI zeigt
-  K.-o.-Turniere noch als Runden-Liste statt als Baum)
 - Gruppenphase + K.-o. (3.4)
 - Export & Backup (F-70 bis F-72)
 - Automatisierte Server-/API-Tests (bisher nur Shared-Smoke-Tests und manuelle

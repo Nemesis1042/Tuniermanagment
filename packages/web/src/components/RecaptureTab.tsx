@@ -52,13 +52,13 @@ export default function RecaptureTab({
   return (
     <div className="card">
       <h3>Nacherfassung</h3>
-      <p style={{ color: "#666" }}>
+      <p className="subtle">
         Zahl eingeben, Tab, Zahl eingeben, Enter — nächste Zeile wird automatisch fokussiert.
         {done > 0 && ` (${done} in dieser Sitzung erfasst)`}
       </p>
       {error && <p style={{ color: "crimson" }}>{error}</p>}
       {open.length === 0 ? (
-        <p>Keine offenen Spiele mehr zu erfassen.</p>
+        <p className="empty-state">Keine offenen Spiele mehr zu erfassen.</p>
       ) : (
         <table>
           <thead>

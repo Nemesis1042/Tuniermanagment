@@ -40,10 +40,15 @@ export default function TournamentDetailPage() {
 
   return (
     <div>
-      <h1>{tournament.discipline}</h1>
-      <p style={{ color: "#666" }}>
-        {tournament.fieldName} · Modus: {tournament.mode} · Status: {tournament.status}
-      </p>
+      <div className="page-head">
+        <div>
+          <h1>{tournament.discipline}</h1>
+          <p className="subtle">
+            {tournament.fieldName} · {modeLabel(tournament.mode)}
+          </p>
+        </div>
+        <span className="status-tag">{tournament.status}</span>
+      </div>
 
       <div className="tabs">
         <button className={tab === "teams" ? "active" : ""} onClick={() => setTab("teams")}>
@@ -68,4 +73,16 @@ export default function TournamentDetailPage() {
       {tab === "standings" && <StandingsTab tournament={tournament} teams={teams} />}
     </div>
   );
+}
+
+function modeLabel(mode: string): string {
+  switch (mode) {
+    case "single_elimination": return "K.-o.";
+    case "double_elimination": return "Doppel-K.-o.";
+    case "league": return "Liga";
+    case "group_ko": return "Gruppen + K.-o.";
+    case "swiss": return "Schweizer System";
+    case "ladder": return "Ladder";
+    default: return mode;
+  }
 }
