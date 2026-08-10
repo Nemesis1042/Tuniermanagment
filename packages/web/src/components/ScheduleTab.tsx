@@ -106,9 +106,12 @@ export default function ScheduleTab({
                     {m.status === "spielbar" && editing !== m.id && (
                       <button onClick={() => setEditing(m.id)}>Eintragen</button>
                     )}
-                    {(m.status === "eingetragen" || m.status === "gewertet" || m.status === "gewertet_ohne_spiel") && (
-                      <button onClick={() => correct(m.id)}>Korrigieren</button>
-                    )}
+                    {(m.status === "eingetragen" || m.status === "gewertet" || m.status === "gewertet_ohne_spiel") &&
+                      m.enteredAt !== null && (
+                        // Automatische Freilos-Matches haben kein enteredAt (niemand hat ein Ergebnis
+                        // eingetragen) und sind nicht spielbar — für die gibt es nichts zu korrigieren.
+                        <button onClick={() => correct(m.id)}>Korrigieren</button>
+                      )}
                   </td>
                 </tr>
               ))}

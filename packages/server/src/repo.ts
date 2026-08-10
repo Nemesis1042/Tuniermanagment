@@ -71,7 +71,8 @@ export function createTournament(input: {
     input.mode,
     input.matchDurationMin ?? null,
     input.changeoverMin ?? null,
-    input.maxTeams ?? MAX_TEAMS_DEFAULT,
+    // F-14: harte Obergrenze 10 Teams — auch API-seitig erzwungen, nicht nur im UI.
+    Math.min(Math.max(input.maxTeams ?? MAX_TEAMS_DEFAULT, 2), MAX_TEAMS_DEFAULT),
     nowIso()
   );
   return getTournament(id)!;
@@ -91,13 +92,18 @@ export function setTournamentStatus(id: string, status: TournamentStatus): void 
   db.prepare(`UPDATE tournaments SET status = ? WHERE id = ?`).run(status, id);
 }
 
-/** F-02: Nach dem ersten eingetragenen Ergebnis ist der Modus gesperrt. */
+/**
+ * F-02: Nach dem ersten eingetragenen Ergebnis ist der Modus gesperrt.
+ * Automatische Freilos-Matches (Kap. 6.1) zählen nicht mit — sie werden bei
+ * der Spielplan-Erzeugung sofort als "gewertet" markiert, ohne dass jemand
+ * ein Ergebnis eingetragen hat (entered_at bleibt NULL).
+ */
 export function isModeLocked(tournamentId: string): boolean {
   const row = db
     .prepare(
       `SELECT COUNT(*) as c FROM matches m
        JOIN phases p ON p.id = m.phase_id
-       WHERE p.tournament_id = ? AND m.status IN ('eingetragen','gewertet','gewertet_ohne_spiel')`
+       WHERE p.tournament_id = ? AND m.status IN ('eingetragen','gewertet','gewertet_ohne_spiel') AND m.entered_at IS NOT NULL`
     )
     .get(tournamentId) as { c: number };
   return row.c > 0;

@@ -55,6 +55,7 @@ export interface Match {
   status: string;
   winnerId: string | null;
   loserId: string | null;
+  enteredAt: string | null;
 }
 
 export interface StandingsRow {

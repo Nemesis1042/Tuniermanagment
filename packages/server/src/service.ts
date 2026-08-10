@@ -83,11 +83,15 @@ export function enterResult(matchId: string, scoreA: number, scoreB: number, act
   const index = toIndex(all);
   const before = new Map(all.map((m) => [m.id, { ...m }]));
 
-  const points = pointsConfigOf(tournamentId);
+  const tournament = repo.getTournament(tournamentId)!;
+  // 3.7: Bei K.-o.-Spielen erzwingt das System einen Sieger — Unentschieden ist dort nie zulässig,
+  // unabhängig von der Punkte-Konfiguration.
+  const isKnockout = tournament.mode === "single_elimination" || tournament.mode === "double_elimination";
+  const allowDraw = !isKnockout && (tournament.config as { allowDraw?: boolean }).allowDraw !== false;
   applyResult(index, matchId, scoreA, scoreB, {
     enteredAt: repo.nowIso(),
     enteredByDevice: device,
-    allowDraw: points.draw !== 0 || (repo.getTournament(tournamentId)!.config as { allowDraw?: boolean }).allowDraw !== false,
+    allowDraw,
   });
 
   const changed = [...index.values()];
