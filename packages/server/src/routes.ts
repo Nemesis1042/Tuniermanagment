@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as repo from "./repo.js";
 import * as service from "./service.js";
+import * as print from "./print/index.js";
 
 export const router = Router();
 
@@ -173,8 +174,27 @@ router.get("/tournaments/:id/standings", (req, res) => {
   res.json(service.standingsFor(req.params.id));
 });
 
-// ---------- Aushang / Nachdruck (F-39b) ----------
+// ---------- Aushang / Nachdruck (F-26 bis F-29, F-39, F-39b) ----------
 
-router.post("/tournaments/:id/print-number/bump", (req, res) => {
-  res.json({ printNumber: repo.bumpPrintNumber(req.params.id) });
+router.get("/tournaments/:id/print", async (req, res) => {
+  try {
+    const pdf = await print.printTournament(req.params.id);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="aushang.pdf"`);
+    res.send(pdf);
+  } catch (e) {
+    res.status(400).json({ error: (e as Error).message });
+  }
+});
+
+/** F-39: Sammeldruck — ein Befehl erzeugt den kompletten Satz für alle laufenden Turniere als ein PDF. */
+router.get("/print/all", async (_req, res) => {
+  try {
+    const pdf = await print.printAllRunning();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="aushang-sammeldruck.pdf"`);
+    res.send(pdf);
+  } catch (e) {
+    res.status(400).json({ error: (e as Error).message });
+  }
 });
