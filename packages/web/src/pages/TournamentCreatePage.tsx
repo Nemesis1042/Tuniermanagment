@@ -34,45 +34,44 @@ export default function TournamentCreatePage() {
   return (
     <div>
       <h1>Turnier anlegen</h1>
-      <form className="card" onSubmit={submit} style={{ maxWidth: 480 }}>
-        <p>
-          <label>
-            Disziplin<br />
-            <input value={discipline} onChange={(e) => setDiscipline(e.target.value)} required />
-          </label>
-        </p>
-        <p>
-          <label>
-            Name (optional, sonst = Disziplin)<br />
-            <input value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-        </p>
-        <p>
-          <label>
-            Feld<br />
-            <input value={fieldName} onChange={(e) => setFieldName(e.target.value)} required />
-          </label>
-        </p>
-        <p>
-          <label>
-            Modus<br />
-            <select value={mode} onChange={(e) => setMode(e.target.value)}>
-              <option value="league">Liga / Jeder gegen Jeden</option>
-              <option value="single_elimination">Single Elimination (K.-o.)</option>
-            </select>
-          </label>
-        </p>
-        <p style={{ color: "#666", fontSize: "0.85em" }}>
-          Weitere Modi (Double Elimination, Gruppen + K.-o., Schweizer System, Ladder) folgen in einer späteren Ausbaustufe.
-        </p>
-        <p>
-          <label>
-            Max. Teams<br />
-            <input type="number" min={2} max={10} value={maxTeams} onChange={(e) => setMaxTeams(Number(e.target.value))} />
-          </label>
-        </p>
+      <form className="card" onSubmit={submit} style={{ maxWidth: 460 }}>
+        <div className="field">
+          <label htmlFor="discipline">Disziplin</label>
+          <input id="discipline" value={discipline} onChange={(e) => setDiscipline(e.target.value)} required style={{ width: "100%" }} />
+        </div>
+        <div className="field">
+          <label htmlFor="name">Name (optional, sonst = Disziplin)</label>
+          <input id="name" value={name} onChange={(e) => setName(e.target.value)} style={{ width: "100%" }} />
+        </div>
+        <div className="field">
+          <label htmlFor="fieldName">Feld</label>
+          <input id="fieldName" value={fieldName} onChange={(e) => setFieldName(e.target.value)} required style={{ width: "100%" }} />
+        </div>
+        <div className="field">
+          <label htmlFor="mode">Modus</label>
+          <select id="mode" value={mode} onChange={(e) => setMode(e.target.value)} style={{ width: "100%" }}>
+            <option value="league">Liga / Jeder gegen Jeden</option>
+            <option value="single_elimination">Single Elimination (K.-o.)</option>
+          </select>
+          <p className="subtle" style={{ marginTop: 6 }}>
+            Weitere Modi (Double Elimination, Gruppen + K.-o., Schweizer System, Ladder) folgen in einer späteren Ausbaustufe.
+          </p>
+        </div>
+        <div className="field">
+          <label htmlFor="maxTeams">Max. Teams</label>
+          <input
+            id="maxTeams"
+            type="number"
+            min={2}
+            max={10}
+            value={maxTeams}
+            onChange={(e) => setMaxTeams(Number(e.target.value))}
+          />
+        </div>
         {error && <p style={{ color: "crimson" }}>{error}</p>}
-        <button className="primary" disabled={busy || !discipline}>Anlegen</button>
+        <button className="primary" disabled={busy || !discipline}>
+          Anlegen
+        </button>
       </form>
     </div>
   );

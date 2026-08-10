@@ -1,9 +1,23 @@
 import { useMemo, useState } from "react";
 import { api, type Match, type Team, type Tournament } from "../api.js";
+import BracketView from "./BracketView.js";
 
 function teamName(teams: Team[], id: string | null): string {
   if (!id) return "—";
   return teams.find((t) => t.id === id)?.name ?? "?";
+}
+
+function statusLabel(status: string): string {
+  switch (status) {
+    case "geplant": return "geplant";
+    case "spielbar": return "spielbar";
+    case "eingetragen": return "eingetragen";
+    case "gewertet": return "gewertet";
+    case "gewertet_ohne_spiel": return "kampflos";
+    case "strittig": return "strittig";
+    case "abgesagt": return "abgesagt";
+    default: return status;
+  }
 }
 
 function statusClass(status: string): string {
@@ -54,9 +68,7 @@ export default function ScheduleTab({
   async function correct(matchId: string) {
     const affected = await api.cascadePreview(matchId);
     if (affected.length > 0) {
-      const names = affected
-        .map((m) => `${teamName(teams, m.teamAId)} : ${teamName(teams, m.teamBId)}`)
-        .join(", ");
+      const names = affected.map((m) => `${teamName(teams, m.teamAId)} : ${teamName(teams, m.teamBId)}`).join(", ");
       if (!confirm(`Diese Folgespiele werden ungültig und zurückgesetzt: ${names}. Fortfahren?`)) return;
     } else if (!confirm("Ergebnis zurücksetzen?")) {
       return;
@@ -66,57 +78,74 @@ export default function ScheduleTab({
   }
 
   if (matches.length === 0) {
-    return <div className="card">Noch kein Spielplan. Im Reiter „Teams" erzeugen.</div>;
+    return (
+      <div className="card">
+        <p className="empty-state">Noch kein Spielplan. Im Reiter „Teams" erzeugen.</p>
+      </div>
+    );
+  }
+
+  if (tournament.mode === "single_elimination") {
+    return (
+      <div className="card">
+        <BracketView matches={matches} teams={teams} />
+      </div>
+    );
   }
 
   return (
     <div className="card">
-      {tournament.mode === "single_elimination" ? (
-        <p style={{ color: "#666" }}>Baumansicht (vereinfacht als Runden-Liste, grafischer Baum folgt in Stufe 2).</p>
-      ) : null}
       {error && <p style={{ color: "crimson" }}>{error}</p>}
       {byRound.map(([round, roundMatches]) => (
-        <div key={round}>
+        <div key={round} className="round-block">
           <h4>Runde {round}</h4>
-          <table>
-            <tbody>
-              {roundMatches.map((m) => (
-                <tr key={m.id}>
-                  <td>{teamName(teams, m.teamAId)}</td>
-                  <td>
-                    {editing === m.id ? (
-                      <span className="row">
-                        <input className="score-input" value={scoreA} onChange={(e) => setScoreA(e.target.value)} autoFocus />
-                        :
-                        <input className="score-input" value={scoreB} onChange={(e) => setScoreB(e.target.value)} />
-                        <button className="primary" onClick={() => submit(m.id)}>OK</button>
-                        <button onClick={() => setEditing(null)}>Abbrechen</button>
-                      </span>
-                    ) : m.scoreA !== null ? (
-                      `${m.scoreA} : ${m.scoreB}`
-                    ) : (
-                      "– : –"
-                    )}
-                  </td>
-                  <td>{teamName(teams, m.teamBId)}</td>
-                  <td>
-                    <span className={`status-tag ${statusClass(m.status)}`}>{m.status}</span>
-                  </td>
-                  <td>
-                    {m.status === "spielbar" && editing !== m.id && (
-                      <button onClick={() => setEditing(m.id)}>Eintragen</button>
-                    )}
-                    {(m.status === "eingetragen" || m.status === "gewertet" || m.status === "gewertet_ohne_spiel") &&
-                      m.enteredAt !== null && (
-                        // Automatische Freilos-Matches haben kein enteredAt (niemand hat ein Ergebnis
-                        // eingetragen) und sind nicht spielbar — für die gibt es nichts zu korrigieren.
-                        <button onClick={() => correct(m.id)}>Korrigieren</button>
-                      )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="match-grid">
+            {roundMatches.map((m) => {
+              const done = m.scoreA !== null && m.scoreB !== null;
+              const canEnter = m.status === "spielbar";
+              const canCorrect =
+                (m.status === "eingetragen" || m.status === "gewertet" || m.status === "gewertet_ohne_spiel") && m.enteredAt !== null;
+              const aWins = m.winnerId !== null && m.winnerId === m.teamAId;
+              const bWins = m.winnerId !== null && m.winnerId === m.teamBId;
+
+              if (editing === m.id) {
+                return (
+                  <div key={m.id} className="match-card">
+                    <div className="teams">
+                      <span className="team a">{teamName(teams, m.teamAId)}</span>
+                      <span className="team b">{teamName(teams, m.teamBId)}</span>
+                    </div>
+                    <div className="edit-row">
+                      <input className="score-input" value={scoreA} onChange={(e) => setScoreA(e.target.value)} autoFocus />
+                      :
+                      <input className="score-input" value={scoreB} onChange={(e) => setScoreB(e.target.value)} />
+                      <button className="primary" onClick={() => submit(m.id)}>OK</button>
+                      <button onClick={() => setEditing(null)}>×</button>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div key={m.id} className={`match-card ${done ? "is-done" : ""}`}>
+                  <div className="teams">
+                    <span className={`team a ${aWins ? "winner" : bWins ? "loser" : ""}`}>{teamName(teams, m.teamAId)}</span>
+                    <span className="score">
+                      <span className="score-box">{done ? m.scoreA : ""}</span>:<span className="score-box">{done ? m.scoreB : ""}</span>
+                    </span>
+                    <span className={`team b ${bWins ? "winner" : aWins ? "loser" : ""}`}>{teamName(teams, m.teamBId)}</span>
+                  </div>
+                  <div className="meta">
+                    <span className={`status-tag ${statusClass(m.status)}`}>{statusLabel(m.status)}</span>
+                    <span className="actions">
+                      {canEnter && <button className="link" onClick={() => setEditing(m.id)}>Eintragen</button>}
+                      {canCorrect && <button className="link" onClick={() => correct(m.id)}>Korrigieren</button>}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       ))}
     </div>
