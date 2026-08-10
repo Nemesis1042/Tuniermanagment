@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Aushang A4 — Herausforderungs-Leiter</title>
+<style>
+  @page { size: A4 portrait; margin: 10mm 10mm 8mm 10mm; }
+  :root { --sans:"Liberation Sans","Helvetica Neue",Helvetica,Arial,sans-serif; --mid:#555; --pale:#999; --hair:#bbb; }
+  * { box-sizing:border-box; }
+  html { background:#d8d8d8; }
+  body { margin:0; font-family:var(--sans); font-size:8.5pt; color:#000; line-height:1.15; }
+
+  .sheet { width:210mm; min-height:297mm; padding:10mm 10mm 8mm; margin:8mm auto; background:#fff;
+           box-shadow:0 1mm 4mm rgba(0,0,0,.25); display:flex; flex-direction:column; }
+
+  .head { display:flex; justify-content:space-between; align-items:flex-start;
+          border-bottom:1.2mm solid #000; padding-bottom:2mm; }
+  .title { font-size:30pt; font-weight:700; letter-spacing:-.5pt; line-height:.92; text-transform:uppercase; }
+  .subtitle { margin-top:1.5mm; font-size:10pt; color:var(--mid); letter-spacing:.3pt; }
+  .stamp { border:.6mm solid #000; padding:2mm 3mm; min-width:48mm; text-align:right; }
+  .stamp .lbl { font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+  .stamp .when { font-size:13pt; font-weight:700; line-height:1.1; margin-top:.5mm; }
+  .stamp .nr { margin-top:1.5mm; padding-top:1.5mm; border-top:.3mm solid var(--hair); font-size:8pt; }
+
+  .regel { margin:3.5mm 0 0; border:.5mm solid #000; padding:3mm 4mm; display:flex; gap:6mm; }
+  .regel div { flex:1; }
+  .regel b { display:block; font-size:9.5pt; margin-bottom:.8mm; }
+  .regel span { font-size:8pt; color:var(--mid); }
+
+  .band { margin:5mm 0 2mm; display:flex; align-items:baseline; gap:3mm; }
+  .band h2 { margin:0; font-size:11pt; font-weight:700; letter-spacing:2pt; text-transform:uppercase; }
+  .band .hint { font-size:7.5pt; color:var(--mid); }
+  .band::after { content:""; flex:1; border-bottom:.3mm solid #000; transform:translateY(-1mm); }
+
+  .split { display:flex; gap:8mm; }
+
+  .leiter { width:78mm; }
+  .r { display:flex; align-items:center; height:11mm; border-bottom:.3mm solid var(--hair); gap:2.5mm; }
+  .r .pl { width:9mm; font-size:15pt; font-weight:700; text-align:right; font-variant-numeric:tabular-nums; }
+  .r .nm { flex:1; font-size:12pt; font-weight:600; }
+  .r .seit { font-size:7pt; color:var(--pale); }
+  .r.spitze { border-bottom:.6mm solid #000; }
+  .r.spitze .pl { font-size:19pt; }
+  .r.spitze .nm { font-size:14pt; }
+
+  .form { flex:1; }
+  table.f { width:100%; border-collapse:collapse; }
+  table.f th { font-size:6.5pt; letter-spacing:.8pt; text-transform:uppercase; color:var(--mid);
+               font-weight:400; text-align:left; padding:0 1mm 1.2mm; border-bottom:.3mm solid #000; }
+  table.f td { height:11mm; border-bottom:.3mm solid var(--hair); padding:0 1mm; }
+  table.f td.d { width:14mm; }
+  table.f td.e { width:22mm; }
+  .boxpair { display:flex; align-items:center; gap:1.5mm; }
+  .box { width:8mm; height:6mm; border:.35mm solid #000; }
+  .colon { font-size:9pt; color:var(--mid); }
+
+  .foot { margin-top:auto; padding-top:2.5mm; border-top:.6mm solid #000;
+          display:flex; justify-content:space-between; gap:6mm; font-size:7.5pt; color:var(--mid); }
+  .foot b { color:#000; }
+
+  @media print { html{background:#fff;} .sheet{margin:0;padding:0;min-height:auto;box-shadow:none;} .noprint{display:none;} }
+  .noprint { max-width:210mm; margin:6mm auto 0; font-family:var(--sans); font-size:9pt; color:#333; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <div class="title" id="disziplin">Tischkicker</div>
+      <div class="subtitle">Herausforderungs-Leiter · 10 Teams · kein fester Spielplan</div>
+    </div>
+    <div class="stamp">
+      <div class="lbl">Stand</div>
+      <div class="when" id="stand">Fr 14.08. · 19:00</div>
+      <div class="nr">Aushang Nr. <b id="nr">6</b> · ältere Blätter abnehmen</div>
+    </div>
+  </div>
+
+  <div class="regel">
+    <div><b>1. Fordern</b><span>Du darfst ein Team fordern, das höchstens <b>drei Plätze</b> über dir steht.</span></div>
+    <div><b>2. Spielen</b><span>Sofort oder wann beide Zeit haben. Wer nicht antritt, verliert 0:1.</span></div>
+    <div><b>3. Eintragen</b><span>Ergebnis rechts eintragen. Gewinnt der Forderer, tauscht ihr die Plätze.</span></div>
+  </div>
+
+  <div class="split">
+    <div class="leiter">
+      <div class="band"><h2>Leiter</h2></div>
+      <div id="leiter"></div>
+    </div>
+    <div class="form">
+      <div class="band"><h2>Forderungen</h2><span class="hint">von oben nach unten ausfüllen</span></div>
+      <table class="f">
+        <thead><tr><th>Tag</th><th>Forderer</th><th>Gefordert</th><th>Ergebnis</th></tr></thead>
+        <tbody id="zeilen"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div><b>Nur eine offene Forderung</b> pro Team gleichzeitig</div>
+    <div><b>Dieselbe Paarung</b> frühestens am nächsten Tag wieder</div>
+    <div><b>Neue Leiter täglich um 19:00.</b></div>
+  </div>
+</div>
+
+<div class="noprint">Drucken mit Strg + P · A4 hoch · Hintergrundgrafiken aus. Daten im <code>DATEN</code>-Objekt.</div>
+
+<script>
+const DATEN = {
+  disziplin: "Tischkicker",
+  stand: "Fr 14.08. · 19:00",
+  nr: 6,
+  leiter: ["Panther","Adler","Haie","Wölfe","Falken","Luchse","Tiger","Bären","Kobras","Piranhas"],
+  seit: { 1:"seit Do", 2:"seit Mi", 3:"neu ▲" },
+  zeilen: 12
+};
+
+document.getElementById("leiter").innerHTML = DATEN.leiter.map((t, i) =>
+  `<div class="r ${i === 0 ? "spitze" : ""}">
+     <span class="pl">${i + 1}</span>
+     <span class="nm">${t}</span>
+     <span class="seit">${DATEN.seit[i + 1] || ""}</span>
+   </div>`).join("");
+
+document.getElementById("zeilen").innerHTML = Array.from({ length: DATEN.zeilen }, () =>
+  `<tr><td class="d"></td><td></td><td></td>
+     <td class="e"><div class="boxpair"><span class="box"></span><span class="colon">:</span><span class="box"></span></div></td>
+   </tr>`).join("");
+
+document.getElementById("disziplin").textContent = DATEN.disziplin;
+document.getElementById("stand").textContent = DATEN.stand;
+document.getElementById("nr").textContent = DATEN.nr;
+</script>
+</body>
+</html>

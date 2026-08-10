@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Aushang A4 — Double Elimination</title>
+<style>
+  @page { size: A4 landscape; margin: 8mm; }
+  :root { --sans:"Liberation Sans","Helvetica Neue",Helvetica,Arial,sans-serif; --mid:#555; --pale:#999; --hair:#bbb; }
+  * { box-sizing:border-box; }
+  html { background:#d8d8d8; }
+  body { margin:0; font-family:var(--sans); font-size:8.5pt; color:#000; }
+
+  .sheet { width:297mm; height:210mm; padding:8mm; margin:8mm auto; background:#fff;
+           box-shadow:0 1mm 4mm rgba(0,0,0,.25); display:flex; flex-direction:column; }
+
+  .head { display:flex; justify-content:space-between; align-items:flex-start;
+          border-bottom:1.2mm solid #000; padding-bottom:2mm; }
+  .title { font-size:26pt; font-weight:700; letter-spacing:-.4pt; line-height:.92; text-transform:uppercase; }
+  .subtitle { margin-top:1.2mm; font-size:9.5pt; color:var(--mid); letter-spacing:.3pt; }
+  .stamp { border:.6mm solid #000; padding:2mm 3mm; min-width:48mm; text-align:right; }
+  .stamp .lbl { font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+  .stamp .when { font-size:13pt; font-weight:700; line-height:1.1; margin-top:.5mm; }
+  .stamp .nr { margin-top:1.5mm; padding-top:1.5mm; border-top:.3mm solid var(--hair); font-size:8pt; }
+
+  .board { position:relative; flex:1; margin-top:3mm; }
+
+  .zone { position:absolute; left:0; width:215mm; font-size:9pt; font-weight:700;
+          letter-spacing:2pt; text-transform:uppercase; border-bottom:.6mm solid #000; padding-bottom:1mm; }
+  .zone small { float:right; font-weight:400; letter-spacing:0; text-transform:none;
+                font-size:7.5pt; color:var(--mid); }
+
+  .tag { position:absolute; font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+
+  .slot { position:absolute; height:7mm; display:flex; align-items:center; border-bottom:.45mm solid #000; }
+  .slot .nm { flex:1; font-size:9pt; padding:0 1.5mm 0 1mm; overflow:hidden; white-space:nowrap; }
+  .slot .nm.ref { color:var(--pale); font-size:7.5pt; font-style:italic; }
+  .slot .box { width:7mm; height:5.2mm; border:.35mm solid #000; text-align:center;
+               font-size:10pt; font-weight:700; line-height:5.2mm; }
+  .slot.done .nm { color:var(--pale); }
+  .slot.done .box { border-color:var(--pale); color:var(--mid); }
+  .slot.win .nm { font-weight:700; }
+
+  .mno { position:absolute; font-size:6.5pt; color:var(--pale); text-align:right; width:4mm; }
+  .h { position:absolute; border-top:.3mm solid #000; }
+  .v { position:absolute; border-left:.3mm solid #000; }
+
+  .cup { position:absolute; width:46mm; border:.8mm solid #000; padding:2.5mm 3mm; }
+  .cup .lbl { font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+  .cup .line { margin-top:2mm; width:100%; border-bottom:.5mm solid #000; height:8mm; }
+
+  .foot { padding-top:2.5mm; border-top:.6mm solid #000; display:flex; justify-content:space-between;
+          gap:6mm; font-size:7.5pt; color:var(--mid); }
+  .foot b { color:#000; }
+
+  @media print { html{background:#fff;} .sheet{margin:0;padding:0;box-shadow:none;} .noprint{display:none;} }
+  .noprint { max-width:297mm; margin:6mm auto 0; font-family:var(--sans); font-size:9pt; color:#333; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <div class="title" id="disziplin">Basketball</div>
+      <div class="subtitle" id="subtitle"></div>
+    </div>
+    <div class="stamp">
+      <div class="lbl">Stand</div>
+      <div class="when" id="stand">Mi 12.08. · 19:00</div>
+      <div class="nr">Aushang Nr. <b id="nr">4</b> · ältere Blätter abnehmen</div>
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="foot">
+    <div><b>Zwei Niederlagen = raus.</b> Wer einmal verliert, spielt unten weiter</div>
+    <div><b>Kein zweites Finale:</b> wer aus dem Verlierer-Bracket kommt, muss das Finale gewinnen</div>
+    <div><b>Nicht angetreten:</b> 1:0 für den Gegner</div>
+  </div>
+</div>
+
+<div class="noprint">Drucken mit Strg + P · A4 <b>quer</b> · Hintergrundgrafiken aus. Daten im <code>DATEN</code>-Objekt.</div>
+
+<script>
+const DATEN = {
+  disziplin: "Basketball",
+  stand: "Mi 12.08. · 19:00",
+  nr: 4,
+  teams: ["Adler","Falken","Wölfe","Tiger","Kobras","Piranhas","Bären","Luchse"],
+  ergebnisse: { 1:[3,1], 2:[2,4], 3:[5,2], 4:[0,2], 5:[2,1], 8:[1,3] }
+};
+
+const S = DATEN.teams;
+
+const spiele = [
+  { id:1,  col:0, y:18,    a:{seed:1}, b:{seed:8} },
+  { id:2,  col:0, y:38,    a:{seed:4}, b:{seed:5} },
+  { id:3,  col:0, y:58,    a:{seed:3}, b:{seed:6} },
+  { id:4,  col:0, y:78,    a:{seed:2}, b:{seed:7} },
+  { id:5,  col:1, y:28,    a:{sieger:1}, b:{sieger:2} },
+  { id:6,  col:1, y:68,    a:{sieger:3}, b:{sieger:4} },
+  { id:7,  col:2, y:48,    a:{sieger:5}, b:{sieger:6} },
+  { id:8,  col:0, y:112,   a:{verlierer:1}, b:{verlierer:2} },
+  { id:9,  col:0, y:134,   a:{verlierer:3}, b:{verlierer:4} },
+  { id:10, col:1, y:112,   a:{sieger:8},  b:{verlierer:6} },
+  { id:11, col:1, y:134,   a:{sieger:9},  b:{verlierer:5} },
+  { id:12, col:2, y:123,   a:{sieger:10}, b:{sieger:11} },
+  { id:13, col:3, y:123,   a:{sieger:12}, b:{verlierer:7} },
+  { id:14, col:4, y:88,    a:{sieger:7},  b:{sieger:13} }
+];
+
+const X = [7, 61, 115, 169, 223], W = 46, GAP = 8, SH = 7, HALF = 4;
+const m = id => spiele.find(s => s.id === id);
+
+function ausgang(id, wer) {
+  const e = DATEN.ergebnisse[id];
+  if (!e) return null;
+  const s = m(id), aWin = e[0] > e[1];
+  return wer === "sieger" ? (aWin ? name(s.a) : name(s.b)) : (aWin ? name(s.b) : name(s.a));
+}
+function name(ref) {
+  if (ref.seed) return S[ref.seed - 1];
+  if (ref.sieger) return ausgang(ref.sieger, "sieger");
+  return ausgang(ref.verlierer, "verlierer");
+}
+function label(ref) {
+  if (ref.sieger) return "Sieger Spiel " + ref.sieger;
+  return "Verlierer Spiel " + ref.verlierer;
+}
+
+const board = document.getElementById("board");
+const el = (cls, css, html) => { const d = document.createElement("div");
+  d.className = cls; d.style.cssText = css; if (html) d.innerHTML = html; board.appendChild(d); return d; };
+
+el("zone", "top:0;", "Gewinner-Bracket <small>wer hier verliert, rutscht nach unten</small>");
+["Runde 1","Halbfinale","Bracket-Finale"].forEach((t, i) =>
+  el("tag", `left:${X[i]}mm; top:7mm;`, t));
+el("tag", `left:${X[4]}mm; top:77mm;`, "Grand Final");
+
+el("zone", "top:92mm;", "Verlierer-Bracket <small>zweite Niederlage bedeutet Turnierende</small>");
+["Runde 1","Runde 2","Runde 3","Bracket-Finale"].forEach((t, i) =>
+  el("tag", `left:${X[i]}mm; top:99mm;`, t));
+
+spiele.forEach(s => {
+  const x = X[s.col], e = DATEN.ergebnisse[s.id];
+  el("mno", `left:${x - 5.5}mm; top:${s.y - 1.6}mm;`, s.id);
+  ["a","b"].forEach((seite, i) => {
+    const ref = s[seite], n = name(ref);
+    const gewinner = e && ((i === 0) === (e[0] > e[1]));
+    el("slot" + (e ? " done" : "") + (gewinner ? " win" : ""),
+      `left:${x}mm; top:${s.y + (i ? HALF : -HALF) - SH / 2}mm; width:${W}mm;`,
+      `<span class="nm${n ? "" : " ref"}">${n || label(ref)}</span>` +
+      `<span class="box">${e ? e[i] : ""}</span>`);
+  });
+});
+
+[[1,5,"a"],[2,5,"b"],[3,6,"a"],[4,6,"b"],[5,7,"a"],[6,7,"b"],
+ [8,10,"a"],[9,11,"a"],[10,12,"a"],[11,12,"b"],[12,13,"a"],
+ [7,14,"a"],[13,14,"b"]].forEach(([von, nach, seite]) => {
+  const s = m(von), z = m(nach), x = X[s.col];
+  const xm = x + W + GAP / 2, zy = z.y + (seite === "a" ? -HALF : HALF);
+  el("h", `left:${x + W}mm; top:${s.y - HALF}mm; width:${GAP / 2}mm;`);
+  el("h", `left:${x + W}mm; top:${s.y + HALF}mm; width:${GAP / 2}mm;`);
+  el("v", `left:${xm}mm; top:${s.y - HALF}mm; height:${HALF * 2}mm;`);
+  el("v", `left:${xm}mm; top:${Math.min(s.y, zy)}mm; height:${Math.abs(zy - s.y)}mm;`);
+  el("h", `left:${xm}mm; top:${zy}mm; width:${X[z.col] - xm}mm;`);
+});
+
+el("v", `left:${X[4] + W / 2}mm; top:${m(14).y + HALF + 3.5}mm; height:6mm;`);
+el("cup", `left:${X[4]}mm; top:${m(14).y + HALF + 9.5}mm;`,
+  `<div class="lbl">Turniersieger</div><div class="line"></div>`);
+
+document.getElementById("disziplin").textContent = DATEN.disziplin;
+document.getElementById("subtitle").textContent =
+  "Double Elimination · " + S.length + " Teams · " + spiele.length + " Spiele";
+document.getElementById("stand").textContent = DATEN.stand;
+document.getElementById("nr").textContent = DATEN.nr;
+</script>
+</body>
+</html>

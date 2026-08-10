@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Aushang A4 — Gruppen + K.-o.</title>
+<style>
+  @page { size: A4 portrait; margin: 10mm 10mm 8mm 10mm; }
+  :root { --sans:"Liberation Sans","Helvetica Neue",Helvetica,Arial,sans-serif; --mid:#555; --pale:#999; --hair:#bbb; }
+  * { box-sizing:border-box; }
+  html { background:#d8d8d8; }
+  body { margin:0; font-family:var(--sans); font-size:8.5pt; color:#000; line-height:1.15; }
+
+  .sheet { width:210mm; min-height:297mm; padding:10mm 10mm 8mm; margin:8mm auto; background:#fff;
+           box-shadow:0 1mm 4mm rgba(0,0,0,.25); display:flex; flex-direction:column; }
+
+  .head { display:flex; justify-content:space-between; align-items:flex-start;
+          border-bottom:1.2mm solid #000; padding-bottom:2mm; }
+  .title { font-size:30pt; font-weight:700; letter-spacing:-.5pt; line-height:.92; text-transform:uppercase; }
+  .subtitle { margin-top:1.5mm; font-size:10pt; color:var(--mid); letter-spacing:.3pt; }
+  .stamp { border:.6mm solid #000; padding:2mm 3mm; min-width:48mm; text-align:right; }
+  .stamp .lbl { font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+  .stamp .when { font-size:13pt; font-weight:700; line-height:1.1; margin-top:.5mm; }
+  .stamp .nr { margin-top:1.5mm; padding-top:1.5mm; border-top:.3mm solid var(--hair); font-size:8pt; }
+
+  .band { margin:4mm 0 2mm; display:flex; align-items:baseline; gap:3mm; }
+  .band h2 { margin:0; font-size:11pt; font-weight:700; letter-spacing:2pt; text-transform:uppercase; }
+  .band .hint { font-size:7.5pt; color:var(--mid); }
+  .band::after { content:""; flex:1; border-bottom:.3mm solid #000; transform:translateY(-1mm); }
+
+  .gruppen { display:flex; gap:8mm; }
+  .gruppe { flex:1; }
+
+  table.tab { width:100%; border-collapse:collapse; }
+  table.tab th { font-size:6.5pt; letter-spacing:.8pt; text-transform:uppercase; color:var(--mid);
+                 font-weight:400; text-align:right; padding:0 1mm 1mm; border-bottom:.3mm solid #000; }
+  table.tab th.l, table.tab td.l { text-align:left; }
+  table.tab td { padding:1.2mm 1mm; text-align:right; border-bottom:.2mm solid var(--hair);
+                 font-variant-numeric:tabular-nums; }
+  table.tab td.pos { width:6mm; color:var(--mid); }
+  table.tab td.team { font-size:10pt; font-weight:600; }
+  table.tab td.pkt { font-size:11pt; font-weight:700; width:11mm; }
+  table.tab tr.qual td.pos { color:#000; font-weight:700; }
+  table.tab tr.qual td.team::after { content:" ▸"; color:var(--mid); font-weight:400; }
+
+  .g { display:flex; align-items:center; gap:1.5mm; height:6.4mm; border-bottom:.2mm solid #ddd; }
+  .g .no { width:5mm; font-size:7pt; color:var(--pale); text-align:right; font-variant-numeric:tabular-nums; }
+  .g .a, .g .b { flex:1; font-size:9pt; overflow:hidden; white-space:nowrap; }
+  .g .a { text-align:right; }
+  .box { width:8mm; height:5.4mm; border:.35mm solid #000; text-align:center;
+         font-size:10pt; font-weight:700; line-height:5.4mm; font-variant-numeric:tabular-nums; }
+  .colon { font-size:9pt; color:var(--mid); }
+  .g.done .a, .g.done .b { color:var(--pale); }
+  .g.done .no { color:#ccc; }
+  .g.done .box { border-color:var(--pale); color:var(--mid); }
+
+  .ko { position:relative; height:56mm; margin-top:1mm; }
+  .slot { position:absolute; height:8mm; display:flex; align-items:center; border-bottom:.5mm solid #000; width:58mm; }
+  .slot .nm { flex:1; font-size:9pt; padding:0 1.5mm 0 1mm; color:var(--pale); font-style:italic; }
+  .slot .box { width:8mm; height:6mm; border:.35mm solid #000; }
+  .h { position:absolute; border-top:.3mm solid #000; }
+  .v { position:absolute; border-left:.3mm solid #000; }
+  .tag { position:absolute; font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+  .cup { position:absolute; width:42mm; border:.8mm solid #000; padding:2.5mm 3mm; }
+  .cup .lbl { font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+  .cup .line { margin-top:2mm; width:100%; border-bottom:.5mm solid #000; height:8mm; }
+
+  .foot { margin-top:auto; padding-top:2.5mm; border-top:.6mm solid #000;
+          display:flex; justify-content:space-between; gap:6mm; font-size:7.5pt; color:var(--mid); }
+  .foot b { color:#000; }
+
+  @media print { html{background:#fff;} .sheet{margin:0;padding:0;min-height:auto;box-shadow:none;} .noprint{display:none;} }
+  .noprint { max-width:210mm; margin:6mm auto 0; font-family:var(--sans); font-size:9pt; color:#333; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <div class="title" id="disziplin">Tischtennis</div>
+      <div class="subtitle" id="subtitle"></div>
+    </div>
+    <div class="stamp">
+      <div class="lbl">Stand</div>
+      <div class="when" id="stand">Di 11.08. · 19:00</div>
+      <div class="nr">Aushang Nr. <b id="nr">3</b> · ältere Blätter abnehmen</div>
+    </div>
+  </div>
+
+  <div class="band">
+    <h2>Vorrunde</h2>
+    <span class="hint">Sieg 3 · Unentschieden 1 · die ersten zwei jeder Gruppe kommen weiter ▸</span>
+  </div>
+
+  <div class="gruppen" id="gruppen"></div>
+
+  <div class="band">
+    <h2>Endrunde</h2>
+    <span class="hint">über Kreuz — Gruppensieger treffen sich frühestens im Finale</span>
+  </div>
+
+  <div class="ko" id="ko"></div>
+
+  <div class="foot">
+    <div><b>Nicht angetreten:</b> 1:0 für den Gegner</div>
+    <div><b>Gleichstand:</b> direkter Vergleich, dann Tordifferenz</div>
+    <div><b>Ergebnisse werden täglich um 19:00 übertragen.</b></div>
+  </div>
+</div>
+
+<div class="noprint">Drucken mit Strg + P · A4 hoch · Hintergrundgrafiken aus. Daten im <code>DATEN</code>-Objekt.</div>
+
+<script>
+const DATEN = {
+  disziplin: "Tischtennis",
+  stand: "Di 11.08. · 19:00",
+  nr: 3,
+  gruppen: {
+    A: ["Adler","Falken","Wölfe","Tiger","Kobras"],
+    B: ["Piranhas","Bären","Luchse","Haie","Panther"]
+  },
+  ergebnisse: {
+    A: { 1:[3,1], 2:[2,2], 3:[0,1], 4:[4,2], 5:[1,3] },
+    B: { 1:[2,0], 2:[1,1], 3:[3,2] }
+  }
+};
+
+function paarungen(teams) {
+  const p = [];
+  for (let i = 0; i < teams.length; i++)
+    for (let j = i + 1; j < teams.length; j++) p.push([teams[i], teams[j]]);
+  return p;
+}
+
+function tabelle(teams, spiele, erg) {
+  const z = {};
+  teams.forEach(t => z[t] = { team:t, sp:0, s:0, u:0, n:0, tp:0, tm:0, pkt:0 });
+  spiele.forEach((sp, i) => {
+    const e = erg[i + 1]; if (!e) return;
+    const [a,b] = sp, [ta,tb] = e;
+    z[a].sp++; z[b].sp++; z[a].tp+=ta; z[a].tm+=tb; z[b].tp+=tb; z[b].tm+=ta;
+    if (ta > tb) { z[a].s++; z[b].n++; z[a].pkt += 3; }
+    else if (ta < tb) { z[b].s++; z[a].n++; z[b].pkt += 3; }
+    else { z[a].u++; z[b].u++; z[a].pkt++; z[b].pkt++; }
+  });
+  return Object.values(z).sort((x,y) =>
+    y.pkt-x.pkt || (y.tp-y.tm)-(x.tp-x.tm) || y.tp-x.tp || x.team.localeCompare(y.team));
+}
+
+let spieleGesamt = 0;
+document.getElementById("gruppen").innerHTML = Object.entries(DATEN.gruppen).map(([g, teams]) => {
+  const sp = paarungen(teams), erg = DATEN.ergebnisse[g] || {};
+  spieleGesamt += sp.length;
+  const tab = tabelle(teams, sp, erg).map((r, i) => `<tr class="${i < 2 ? "qual" : ""}">
+      <td class="pos">${i+1}</td><td class="l team">${r.team}</td>
+      <td>${r.sp}</td><td>${r.s}</td><td>${r.u}</td><td>${r.n}</td>
+      <td>${r.tp-r.tm > 0 ? "+" : ""}${r.tp-r.tm}</td><td class="pkt">${r.pkt}</td></tr>`).join("");
+  const liste = sp.map((m, i) => {
+    const e = erg[i+1];
+    return `<div class="g ${e ? "done" : ""}"><span class="no">${i+1}</span>
+      <span class="a">${m[0]}</span><span class="box">${e ? e[0] : ""}</span>
+      <span class="colon">:</span><span class="box">${e ? e[1] : ""}</span>
+      <span class="b">${m[1]}</span></div>`;
+  }).join("");
+  return `<div class="gruppe">
+      <div style="font-size:12pt;font-weight:700;letter-spacing:1pt;margin-bottom:1.5mm">GRUPPE ${g}</div>
+      <table class="tab"><thead><tr><th class="l" colspan="2">Team</th>
+        <th>Sp</th><th>S</th><th>U</th><th>N</th><th>Diff</th><th>Pkt</th></tr></thead>
+        <tbody>${tab}</tbody></table>
+      <div style="margin-top:3mm">${liste}</div>
+    </div>`;
+}).join("");
+
+const ko = document.getElementById("ko");
+const el = (cls, css, html) => { const d = document.createElement("div");
+  d.className = cls; d.style.cssText = css; if (html) d.innerHTML = html; ko.appendChild(d); return d; };
+const paar = (x, y, oben, unten) => {
+  el("slot", `left:${x}mm; top:${y-8.5}mm;`, `<span class="nm">${oben}</span><span class="box"></span>`);
+  el("slot", `left:${x}mm; top:${y+0.5}mm;`, `<span class="nm">${unten}</span><span class="box"></span>`);
+};
+
+el("tag", "left:0; top:0;", "Halbfinale");
+el("tag", "left:74mm; top:0;", "Finale");
+el("tag", "left:148mm; top:0;", "Sieger");
+
+paar(0, 14, "1. Gruppe A", "2. Gruppe B");
+paar(0, 42, "1. Gruppe B", "2. Gruppe A");
+el("v", "left:64mm; top:9.5mm; height:9mm;");
+el("h", "left:58mm; top:9.5mm; width:6mm;");
+el("h", "left:58mm; top:18.5mm; width:6mm;");
+el("v", "left:64mm; top:37.5mm; height:9mm;");
+el("h", "left:58mm; top:37.5mm; width:6mm;");
+el("h", "left:58mm; top:46.5mm; width:6mm;");
+el("h", "left:64mm; top:14mm; width:10mm;");
+el("h", "left:64mm; top:42mm; width:10mm;");
+
+el("slot", "left:74mm; top:9.5mm; width:58mm;", `<span class="nm">Sieger Halbfinale 1</span><span class="box"></span>`);
+el("slot", "left:74mm; top:37.5mm; width:58mm;", `<span class="nm">Sieger Halbfinale 2</span><span class="box"></span>`);
+el("v", "left:138mm; top:13.5mm; height:28mm;");
+el("h", "left:132mm; top:13.5mm; width:6mm;");
+el("h", "left:132mm; top:41.5mm; width:6mm;");
+el("h", "left:138mm; top:27.5mm; width:10mm;");
+el("cup", "left:148mm; top:16mm;", `<div class="lbl">Turniersieger</div><div class="line"></div>`);
+
+document.getElementById("disziplin").textContent = DATEN.disziplin;
+document.getElementById("subtitle").textContent =
+  "Gruppenphase + K.-o. · " + Object.values(DATEN.gruppen).flat().length +
+  " Teams · " + (spieleGesamt + 3) + " Spiele";
+document.getElementById("stand").textContent = DATEN.stand;
+document.getElementById("nr").textContent = DATEN.nr;
+</script>
+</body>
+</html>

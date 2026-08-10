@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Aushang A4 — K.-o.-Baum</title>
+<style>
+  @page { size: A4 landscape; margin: 8mm; }
+  :root { --sans:"Liberation Sans","Helvetica Neue",Helvetica,Arial,sans-serif; --mid:#555; --pale:#999; --hair:#bbb; }
+  * { box-sizing:border-box; }
+  html { background:#d8d8d8; }
+  body { margin:0; font-family:var(--sans); font-size:8.5pt; color:#000; }
+
+  .sheet { width:297mm; height:210mm; padding:8mm; margin:8mm auto; background:#fff;
+           box-shadow:0 1mm 4mm rgba(0,0,0,.25); display:flex; flex-direction:column; }
+
+  .head { display:flex; justify-content:space-between; align-items:flex-start;
+          border-bottom:1.2mm solid #000; padding-bottom:2mm; }
+  .title { font-size:26pt; font-weight:700; letter-spacing:-.4pt; line-height:.92; text-transform:uppercase; }
+  .subtitle { margin-top:1.2mm; font-size:9.5pt; color:var(--mid); letter-spacing:.3pt; }
+  .stamp { border:.6mm solid #000; padding:2mm 3mm; min-width:48mm; text-align:right; }
+  .stamp .lbl { font-size:6.5pt; letter-spacing:1.4pt; text-transform:uppercase; color:var(--mid); }
+  .stamp .when { font-size:13pt; font-weight:700; line-height:1.1; margin-top:.5mm; }
+  .stamp .nr { margin-top:1.5mm; padding-top:1.5mm; border-top:.3mm solid var(--hair); font-size:8pt; }
+
+  .cols { display:flex; margin:2.5mm 0 1.5mm; padding-left:6mm; }
+  .cols span { font-size:6.5pt; letter-spacing:1.6pt; text-transform:uppercase; color:var(--mid); }
+
+  .board { position:relative; flex:1; }
+
+  .slot { position:absolute; height:8mm; display:flex; align-items:center;
+          border-bottom:.5mm solid #000; }
+  .slot .nm { flex:1; font-size:10pt; padding:0 1.5mm 0 1mm; overflow:hidden; white-space:nowrap; }
+  .slot .nm.blank { color:var(--pale); font-size:8pt; font-style:italic; }
+  .slot .box { width:8mm; height:6mm; border:.35mm solid #000; text-align:center;
+               font-size:11pt; font-weight:700; line-height:6mm; }
+  .slot.done .nm { color:var(--pale); }
+  .slot.done .box { border-color:var(--pale); color:var(--mid); }
+  .slot.win .nm { font-weight:700; }
+
+  .fl { font-size:6.5pt; color:var(--pale); letter-spacing:.6pt; padding-left:1mm; }
+  .mno { position:absolute; font-size:7pt; color:var(--pale); }
+
+  .h { position:absolute; border-top:.3mm solid #000; }
+  .v { position:absolute; border-left:.3mm solid #000; }
+
+  .cup { position:absolute; width:50mm; border:.8mm solid #000; padding:3mm; text-align:center; }
+  .cup .lbl { font-size:7pt; letter-spacing:1.6pt; text-transform:uppercase; color:var(--mid); }
+  .cup .line { margin-top:2mm; width:100%; border-bottom:.5mm solid #000; height:9mm; }
+
+  .foot { padding-top:2.5mm; border-top:.6mm solid #000; display:flex; justify-content:space-between;
+          font-size:7.5pt; color:var(--mid); }
+  .foot b { color:#000; }
+
+  @media print { html{background:#fff;} .sheet{margin:0;padding:0;box-shadow:none;} .noprint{display:none;} }
+  .noprint { max-width:297mm; margin:6mm auto 0; font-family:var(--sans); font-size:9pt; color:#333; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <div class="title" id="disziplin">Völkerball</div>
+      <div class="subtitle" id="subtitle"></div>
+    </div>
+    <div class="stamp">
+      <div class="lbl">Stand</div>
+      <div class="when" id="stand">Do 13.08. · 19:00</div>
+      <div class="nr">Aushang Nr. <b id="nr">5</b> · ältere Blätter abnehmen</div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <span style="width:54mm">Vorrunde</span>
+    <span style="width:54mm">Viertelfinale</span>
+    <span style="width:54mm">Halbfinale</span>
+    <span style="width:54mm">Finale</span>
+    <span>Sieger</span>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="foot">
+    <div><b>Freilos:</b> die sechs bestgesetzten Teams starten im Viertelfinale</div>
+    <div><b>Unentschieden gibt es nicht</b> — bei Gleichstand Verlängerung</div>
+    <div><b>Nicht angetreten:</b> 1:0 für den Gegner</div>
+  </div>
+</div>
+
+<div class="noprint">Drucken mit Strg + P · A4 <b>quer</b> · Hintergrundgrafiken aus. Daten im <code>DATEN</code>-Objekt.</div>
+
+<script>
+const DATEN = {
+  disziplin: "Völkerball",
+  stand: "Do 13.08. · 19:00",
+  nr: 5,
+  teams: ["Adler","Falken","Wölfe","Tiger","Kobras","Piranhas","Bären","Luchse","Haie","Panther"],
+  ergebnisse: { 1:[3,1], 2:[0,2], 3:[2,1] }
+};
+
+const S = DATEN.teams;
+const spiele = [
+  { id:1, r:0, a:{seed:8}, b:{seed:9} },
+  { id:2, r:0, a:{seed:7}, b:{seed:10} },
+  { id:3, r:1, a:{seed:1},  b:{von:1} },
+  { id:4, r:1, a:{seed:5},  b:{seed:4} },
+  { id:5, r:1, a:{seed:3},  b:{seed:6} },
+  { id:6, r:1, a:{von:2},   b:{seed:2} },
+  { id:7, r:2, a:{von:3},   b:{von:4} },
+  { id:8, r:2, a:{von:5},   b:{von:6} },
+  { id:9, r:3, a:{von:7},   b:{von:8} }
+];
+
+function sieger(id) {
+  const e = DATEN.ergebnisse[id];
+  if (!e) return null;
+  const m = spiele.find(s => s.id === id);
+  return e[0] > e[1] ? name(m.a) : name(m.b);
+}
+function name(ref) {
+  if (ref.seed) return S[ref.seed - 1];
+  return sieger(ref.von);
+}
+
+const COL = { 0:6, 1:60, 2:114, 3:168 };
+const W   = 48, GAP = 6, SH = 8;
+const zentrum = {};
+
+spiele.filter(s => s.r === 1).forEach((s, j) => { zentrum[s.id] = 14 + j * 32; });
+[[7,3,4],[8,5,6]].forEach(([id,x,y]) => { zentrum[id] = (zentrum[x] + zentrum[y]) / 2; });
+zentrum[9] = (zentrum[7] + zentrum[8]) / 2;
+zentrum[1] = zentrum[3] + 4.5;
+zentrum[2] = zentrum[6] - 4.5;
+
+const freilose = new Set(["3a","4a","4b","5a","5b","6b"]);
+const board = document.getElementById("board");
+const el = (cls, css, html) => {
+  const d = document.createElement("div");
+  d.className = cls; d.style.cssText = css; if (html) d.innerHTML = html;
+  board.appendChild(d); return d;
+};
+
+function slotY(s, seite) { return zentrum[s.id] + (seite === "a" ? -4.5 : 4.5) - SH / 2; }
+
+spiele.forEach(s => {
+  const x = COL[s.r];
+  const e = DATEN.ergebnisse[s.id];
+  ["a","b"].forEach((seite, i) => {
+    const ref = s[seite], n = name(ref);
+    const gewinner = e && ((i === 0) === (e[0] > e[1]));
+    el("slot" + (e ? " done" : "") + (gewinner ? " win" : ""),
+      `left:${x}mm; top:${slotY(s, seite)}mm; width:${W}mm;`,
+      (freilose.has(s.id + seite) ? `<span class="fl">Freilos</span>` : "") +
+      `<span class="nm${n ? "" : " blank"}">${n || "Sieger " + ref.von}</span>` +
+      `<span class="box">${e ? e[i] : ""}</span>`);
+  });
+  el("mno", `left:${x - 5}mm; top:${zentrum[s.id] - 1.6}mm;`, s.id);
+
+  const ziel = spiele.find(z => z.a.von === s.id || z.b.von === s.id);
+  if (!ziel) return;
+  const seite = ziel.a.von === s.id ? "a" : "b";
+  const xm = x + W + GAP / 2, zy = zentrum[ziel.id] + (seite === "a" ? -4.5 : 4.5);
+  el("h", `left:${x + W}mm; top:${zentrum[s.id] - 4.5}mm; width:${GAP / 2}mm;`);
+  el("h", `left:${x + W}mm; top:${zentrum[s.id] + 4.5}mm; width:${GAP / 2}mm;`);
+  el("v", `left:${xm}mm; top:${zentrum[s.id] - 4.5}mm; height:9mm;`);
+  el("v", `left:${xm}mm; top:${Math.min(zentrum[s.id], zy)}mm; height:${Math.abs(zy - zentrum[s.id])}mm;`);
+  el("h", `left:${xm}mm; top:${zy}mm; width:${COL[ziel.r] - xm}mm;`);
+});
+
+const xf = COL[3] + W + GAP;
+el("v", `left:${xf}mm; top:${zentrum[9] - 4.5}mm; height:9mm;`);
+el("h", `left:${COL[3] + W}mm; top:${zentrum[9] - 4.5}mm; width:${GAP}mm;`);
+el("h", `left:${COL[3] + W}mm; top:${zentrum[9] + 4.5}mm; width:${GAP}mm;`);
+el("h", `left:${xf}mm; top:${zentrum[9]}mm; width:6mm;`);
+el("cup", `left:${xf + 4}mm; top:${zentrum[9] - 14}mm;`,
+  `<div class="lbl">Turniersieger</div><div class="line"></div>`);
+
+document.getElementById("disziplin").textContent = DATEN.disziplin;
+document.getElementById("subtitle").textContent =
+  "K.-o.-System · " + S.length + " Teams · " + spiele.length + " Spiele · wer verliert, ist raus";
+document.getElementById("stand").textContent = DATEN.stand;
+document.getElementById("nr").textContent = DATEN.nr;
+</script>
+</body>
+</html>
