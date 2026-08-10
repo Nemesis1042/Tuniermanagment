@@ -76,13 +76,6 @@ CREATE TABLE IF NOT EXISTS match_logs (
   new_value TEXT
 );
 
-CREATE TABLE IF NOT EXISTS devices (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  role TEXT NOT NULL,
-  last_seen TEXT NOT NULL
-);
-
 CREATE INDEX IF NOT EXISTS idx_teams_tournament ON teams(tournament_id);
 CREATE INDEX IF NOT EXISTS idx_phases_tournament ON phases(tournament_id);
 CREATE INDEX IF NOT EXISTS idx_matches_phase ON matches(phase_id);
