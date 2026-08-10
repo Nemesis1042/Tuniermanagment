@@ -1,0 +1,87 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Liberation Sans", Helvetica, Arial, sans-serif;
+  background: #f2f2f2;
+  color: #1a1a1a;
+}
+
+header.topbar {
+  background: #111;
+  color: #fff;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+header.topbar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+main {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+th { color: #555; font-size: 0.8em; text-transform: uppercase; }
+
+button {
+  font-size: 1em;
+  padding: 6px 12px;
+  border: 1px solid #333;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.primary { background: #111; color: #fff; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+input, select {
+  font-size: 1em;
+  padding: 6px 8px;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.tabs button { border-radius: 4px 4px 0 0; }
+.tabs button.active { background: #111; color: #fff; }
+
+.score-input { width: 3em; text-align: center; }
+
+.status-tag {
+  display: inline-block;
+  font-size: 0.75em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #eee;
+}
+.status-gewertet { background: #d7f2d7; }
+.status-spielbar { background: #fff2c2; }
+.status-geplant { background: #eee; color: #999; }
