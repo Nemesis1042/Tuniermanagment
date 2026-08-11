@@ -81,25 +81,9 @@ export interface Match {
   bestOf: number | null;
 }
 
-export type DeviceRole = "terminal" | "display" | "admin";
-
-export interface Device {
-  id: string;
-  name: string;
-  role: DeviceRole;
-  lastSeen: string;
-}
-
-// Sync-Queue, siehe Kapitel 8. Wird ab Stufe 2 benötigt.
-export interface SyncEvent {
-  uuid: string;
-  deviceId: string;
-  matchId: string;
-  type: string;
-  payload: Record<string, unknown>;
-  createdAt: string;
-  appliedAt: string | null;
-}
+// Device/SyncEvent (Kap. 8 Sync-Queue) sind bewusst noch nicht modelliert —
+// Stufe 1 hat keinen Server und keine Geräte-Synchronisation. Erst mit
+// Stufe 2 (Terminal, Offline-Sync) wieder aufnehmen, siehe Pflichtenheft 8.3.
 
 export interface MatchLog {
   id: string;

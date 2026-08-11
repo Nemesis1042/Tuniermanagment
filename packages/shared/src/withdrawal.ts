@@ -1,6 +1,5 @@
 // Rückzug und kampflose Wertung (F-18).
 
-import type { Match } from "./types.js";
 import { applyResult, type MatchIndex } from "./resolution.js";
 
 /**
@@ -29,8 +28,4 @@ export function withdrawTeam(
     scoredIds.push(match.id);
   }
   return scoredIds;
-}
-
-export function matchesForTeam(matches: Match[], teamId: string): Match[] {
-  return matches.filter((m) => m.teamAId === teamId || m.teamBId === teamId);
 }

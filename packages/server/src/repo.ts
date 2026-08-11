@@ -226,11 +226,6 @@ export function createPhase(tournamentId: string, type: Phase["type"], order: nu
   return mapPhase(db.prepare(`SELECT * FROM phases WHERE id = ?`).get(id) as PhaseRow);
 }
 
-export function listPhases(tournamentId: string): Phase[] {
-  const rows = db.prepare(`SELECT * FROM phases WHERE tournament_id = ? ORDER BY order_num`).all(tournamentId) as PhaseRow[];
-  return rows.map(mapPhase);
-}
-
 export function clearPhases(tournamentId: string): void {
   db.prepare(`DELETE FROM phases WHERE tournament_id = ?`).run(tournamentId); // Matches folgen per ON DELETE CASCADE
 }
@@ -343,11 +338,6 @@ export function listMatchesForTournament(tournamentId: string): Match[] {
     )
     .all(tournamentId) as MatchRow[];
   return rows.map(mapMatch);
-}
-
-export function getMatch(id: string): Match | null {
-  const row = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(id) as MatchRow | undefined;
-  return row ? mapMatch(row) : null;
 }
 
 export function tournamentIdOfMatch(matchId: string): string | null {
